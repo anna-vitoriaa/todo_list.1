@@ -12,28 +12,28 @@ class Tarefas:
         self.tarefas.append(tarefa)
         return 'Tarefa criada'
     
-    def mostrar_tarefas_dia(self):
+    def mostrar_tarefas(self):
         for i, v in enumerate(self.tarefas):
+            print(i, end=' ')
+            if v['sit'] == False:
+                print('[ ]', end=' ')
+            else: 
+                print('[x]', end=' ')
 
-            if v['data'] == self.hoje:
-                
-                if v['sit'] == False:
-                    print('[ ]', end=' ')
-                else: 
-                    print('[x]', end=' ')
-
-                print(v['nome'])
-            
+            print(v['nome'])
 
     def remover_tarefa(self, id):
         t = self.tarefas[id]
         self.tarefas.remove(t)
         return 'Tarefa removida'
     
-    def editar_tarefa(self, id, nome, data, sit):
+    def editar_tarefa(self, id, nome, data):
         old = self.tarefas[id]
-        self.tarefas[id] = {'nome': nome, 'data': data, 'sit': sit}
+        self.tarefas[id] = {'nome': nome, 'data': self.datetime.strftime(data, '%d/%m/%Y'), 'sit': self.situacao}
         return 'Antiga:', old, '\n', 'Atualizada: ', self.tarefas[id]
 
-
-        
+    def des_marcar(self, id):
+        if self.tarefas[id]['sit'] == False:
+            self.tarefas[id]['sit'] = True
+        else:
+            self.tarefas[id]['sit'] = False
