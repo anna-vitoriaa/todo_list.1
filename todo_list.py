@@ -12,6 +12,9 @@ print(t.hoje, "\t", dia_semana)
 t.criar_tarefa(nome="ler", data=t.hoje)
 t.criar_tarefa(nome="estudar", data=t.hoje)
 t.criar_tarefa(nome="treinar", data=t.hoje)
+t.criar_tarefa(nome= 'trabalhar', data='10/09/2025')
+t.criar_tarefa(nome= 'programar', data= '10/09/2025')
+t.criar_tarefa(nome= 'inglês', data= '11/09/2025')
 
 while True:
     t.mostrar_tarefas()

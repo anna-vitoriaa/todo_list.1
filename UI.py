@@ -61,6 +61,7 @@ class Ui:
             print('3\tEditar tarefa')
             print('4\tDeletar tarefa')
             print('5\tMostrar tarefas')
+            print('6\tFiltrar tarefas por dia')
             print('0\tSair')
             op = int(input('Opção: '))
 
@@ -70,7 +71,32 @@ class Ui:
                 case 3: self.print_editar()
                 case 4: self.print_deletar()
                 case 5: self.t.mostrar_tarefas()
+                case 6: self.print_por_dia()
                 case 0: break
         return
+
+    def print_por_dia(self):
+        data = input("Qual dia quer filtrar? (dd/mm/yyyy) ")
+        try:
+            dataf = self.t.datetime.strptime(data, '%d/%m/%Y')
+            print('\n')
+            print("="*23)
+            print("="*23, '\n🗓️  Tarefas de ', dataf.strftime('%d/%m/%Y'))
+
+            tarefas_dia = [t for t in self.t.tarefas if t['data'] == data]
+
+            for i, t in enumerate(tarefas_dia):
+                sts = '[x]' if t['sit'] else '[ ]'
+                print(i, sts, t['nome'])
+            
+            if not tarefas_dia: 
+                print("Nenhuma tarefa para este dia")
+                return
+            print('='*23)
+                    
+        except(ValueError):
+            print("Formato inválido")
+            return
+
 
     
