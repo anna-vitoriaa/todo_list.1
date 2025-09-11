@@ -1,57 +1,59 @@
+import tarefas
+import utils 
+from datetime import datetime as dt
+
 class Ui:
-    def __init__(self):
-        import tarefas
-        self.t = tarefas.Tarefas()
-    
+    t = tarefas.Tarefas()
+
     def print_marcar(self):
-        p = int(input('Qual tarefa quer marcar? '))
-        if p >= 0 and p < len(self.t.tarefas):
-            self.t.des_marcar(p)
-        else: print("Tarefa não encontrada")
-        return
+        try: 
+            p = int(input('Qual tarefa quer marcar? '))
+            id = utils.validar_id(p, self.t.tarefas)
+            if id is not None:
+                self.t.des_marcar(id)
+                return
+            print('Id inválido')
+        except(ValueError):
+            print("Tarefa não encontrada")
 
     def print_criar(self):
         nome = input("Qual o nome da tarefa? ")
-        data = input("Qual a data? (dd/mm/yyyy ou hoje): ")
-
-        if data.upper() == 'HOJE':
-            data = self.t.hoje
-        elif data[2] == '/' and data[5] == '/':
-            data = self.t.datetime.strptime(data, "%d/%m/%Y")
-        else: 
-            print("Data inválida")
-            return
-        print(self.t.criar_tarefa(nome= nome, data= data))
+        data_str = input("Qual a data? (dd/mm/yyyy ou hoje): ")
+        print(self.t.criar_tarefa(nome= nome, data= data_str))
         return
     
     def print_editar(self):
         p = int(input('Qual tarefa quer editar? '))
-        if p >= 0 and p < len(self.t.tarefas):
-            nome = self.t.tarefas[p]['nome']
-            data_str = self.t.tarefas[p]['data']
-            data = self.t.datetime.strptime(data_str, '%d/%m/%Y')
+        try:
+            id = utils.validar_id(p, self.t.tarefas)
+            if id is not None:
+                print(self.t.tarefas[id]['data'])
+                nome = self.t.tarefas[id]['nome']
+                data = self.t.tarefas[id]['data']
 
-            print('\nNome: ', nome, '\nData: ', data_str)
-            o = int(input("\n1\tNome\n2\tData\nO que você quer mudar? "))
-            if 0 < o < 3:
-                if o == 1: nome = input("Novo nome: ")
-                else: 
-                    data = input("Nova data: ")
-                    data = self.t.datetime.strptime(data, '%d/%m/%Y')
+                print('\nNome: ', nome, '\nData: ', data.strftime('%d/%m/%Y'))
+                o = int(input("\n1\tNome\n2\tData\nO que você quer mudar? "))
+                if 0 < o < 3:
+                    if o == 1: nome = input("Novo nome: ")
+                    else: 
+                        data_str = input("Nova data: ")
+                        data = dt.strptime(data_str, '%d/%m/%Y')
             else: print("Opção inválida")
 
-            print(self.t.editar_tarefa(id= p, nome= nome, data= data))
-
-        else: print("Tarefa não encontrada")
-        return self.print_menu()
+            print(self.t.editar_tarefa(id= id, nome= nome, data= data))
+            return
+        except(ValueError):
+            print("Tarefa não encontrada")
     
     def print_deletar(self):
         o = int(input('Qual tarefa quer remover? '))
-        if o < len(self.t.tarefas):
-            self.t.remover_tarefa(id= o)
-        else: 
-            print("Tarefa inválida")
+        try:
+            id = utils.validar_id(o, self.t.tarefas)
+            if id is not None:
+                self.t.remover_tarefa(id= id)
             return
+        except(ValueError):
+            print("Tarefa não encontrada")
 
 
     def print_menu(self):
@@ -73,26 +75,38 @@ class Ui:
                 case 5: self.t.mostrar_tarefas()
                 case 6: self.print_por_dia()
                 case 0: break
+                case _: print('Opção inválida')
         return
 
     def print_por_dia(self):
-        data = input("Qual dia quer filtrar? (dd/mm/yyyy) ")
+        while True:
+            data = input("Qual dia quer filtrar? (dd/mm/yyyy) ")
+            dataf = utils.validar_data(data_str= data)
+            if dataf is not None: break
         try:
-            dataf = self.t.datetime.strptime(data, '%d/%m/%Y')
             print('\n')
             print("="*23)
-            print("="*23, '\n🗓️  Tarefas de ', dataf.strftime('%d/%m/%Y'))
-
-            tarefas_dia = [t for t in self.t.tarefas if t['data'] == data]
+            print('🗓️  Tarefas de ', dataf.strftime('%d/%m/%Y') if dataf.date() != dt.today().date() else 'Hoje')
+            print("="*23)
+    
+            tarefas_dia = [t for t in self.t.tarefas if t['data'].date() == dataf.date()]
+        
 
             for i, t in enumerate(tarefas_dia):
                 sts = '[x]' if t['sit'] else '[ ]'
-                print(i, sts, t['nome'])
+                print(i+1, sts, t['nome'])
             
             if not tarefas_dia: 
                 print("Nenhuma tarefa para este dia")
                 return
+            
+            total = len(tarefas_dia)
+            concluidas = sum(t['sit'] for t in self.t.tarefas)
+            print("\nTotal de tarefas para hoje: ", total)
+            print("Total de tarefas concluídas: ", concluidas)
+            print("Total de tarefas pendentes: ", total-concluidas)
             print('='*23)
+            return
                     
         except(ValueError):
             print("Formato inválido")
